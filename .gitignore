@@ -1,0 +1,74 @@
+# ───────────────────────────────────────────────
+#  MSLR — root .gitignore
+#  (the Flutter client keeps its own .gitignore in app/)
+# ───────────────────────────────────────────────
+
+# ── Operating system ──
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# ── Editors / IDEs ──
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# ── Flutter copy artifacts (e.g. "filename 2") ──
+*\ 2
+*\ 2.*
+
+# ═══════════════════════════════════════════════
+#  Backend — Python / Django
+# ═══════════════════════════════════════════════
+
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+/backend/staticfiles/
+/backend/media/
+/backend/static/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Packaging / tooling
+build/
+dist/
+*.egg-info/
+.eggs/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
