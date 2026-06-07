@@ -131,6 +131,10 @@ source .venv/bin/activate          # Windows: .venv\Scripts\activate
 # install dependencies
 pip install -r requirements.txt
 
+# configure environment variables (optional for local dev — sensible
+# defaults are used if you skip this; required before deploying)
+cp .env.example .env
+
 # set up the database
 python manage.py migrate
 
@@ -207,20 +211,29 @@ Interactive documentation is served by the backend once it's running:
 
 ## 🔒 Security Notes
 
-This repository is a **demonstration / portfolio project** and ships with development‑friendly defaults. Before any real deployment you should:
+This is a **demonstration / portfolio project**, but configuration follows
+production‑minded practices:
 
-- Move `SECRET_KEY` and the JWT signing key out of `settings.py` into environment variables.
-- Replace the **hard‑coded Election Commission credentials** with proper hashed, database‑backed auth.
-- Set `DEBUG = False`, restrict `ALLOWED_HOSTS`, and tighten `CORS_ALLOW_ALL_ORIGINS`.
+- **No secrets are hard‑coded.** `SECRET_KEY`, the JWT signing key, the Election
+  Commission credentials, `DEBUG`, `ALLOWED_HOSTS`, and CORS are all read from
+  **environment variables** (loaded from a git‑ignored `.env`; see
+  [`backend/.env.example`](backend/.env.example)). Development defaults keep the
+  project runnable out of the box, and the loader degrades gracefully if
+  `python-dotenv` isn't installed.
+- The development database (`db.sqlite3`) is intentionally **not** committed.
+
+Before a real deployment you should additionally:
+
+- Generate a fresh `DJANGO_SECRET_KEY` and set strong `EC_PASSWORD` / `EC_API_TOKEN` values.
+- Set `DJANGO_DEBUG=False`, restrict `DJANGO_ALLOWED_HOSTS`, and disable `DJANGO_CORS_ALLOW_ALL`.
+- Move the Election Commission to proper hashed, database‑backed authentication.
 - Switch from SQLite to a production database (e.g. PostgreSQL) and serve over HTTPS.
-
-The development database (`db.sqlite3`) is intentionally **not** committed.
 
 ---
 
 ## 🗺️ Roadmap
 
-- [ ] Environment‑based configuration & secret management
+- [x] Environment‑based configuration & secret management
 - [ ] Database‑backed EC accounts with hashed passwords
 - [ ] Automated test suite (backend + widget tests)
 - [ ] Live hosted demo (API + web results dashboard)

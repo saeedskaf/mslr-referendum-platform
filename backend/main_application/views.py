@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.conf import settings
 from .models import Voter, Referendum, ReferendumOption, Vote, ElectionCommission, SCC
 from .serializers import (
     VoterRegistrationSerializer,
@@ -148,11 +149,11 @@ def ec_login(request):
         email = serializer.validated_data["email"]
         password = serializer.validated_data["password"]
 
-        if email == "ec@referendum.gov.sr" and password == "Shangrilavote&2025@":
+        if email == settings.EC_EMAIL and password == settings.EC_PASSWORD:
             return Response(
                 {
                     "message": "Login successful",
-                    "access": "EC_SECRET_TOKEN_2025",
+                    "access": settings.EC_API_TOKEN,
                     "email": email,
                     "role": "election_commission",
                 }
@@ -231,7 +232,7 @@ def verify_ec_token(request):
     if not auth_header.startswith("Bearer "):
         return False
     token = auth_header.split(" ")[1]
-    return token == "EC_SECRET_TOKEN_2025"
+    return token == settings.EC_API_TOKEN
 
 
 @swagger_auto_schema(method="get", responses={200: ReferendumSerializer(many=True)})
@@ -247,7 +248,7 @@ def ec_list_referendums(request):
         )
 
     token = auth_header.split(" ")[1]
-    if token != "EC_SECRET_TOKEN_2025":
+    if token != settings.EC_API_TOKEN:
         return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
     referendums = Referendum.objects.all().prefetch_related("options")
     serializer = ReferendumSerializer(referendums, many=True)
@@ -271,7 +272,7 @@ def ec_create_referendum(request):
         )
 
     token = auth_header.split(" ")[1]
-    if token != "EC_SECRET_TOKEN_2025":
+    if token != settings.EC_API_TOKEN:
         return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
     serializer = ReferendumSerializer(data=request.data)
     if serializer.is_valid():
@@ -301,7 +302,7 @@ def ec_update_referendum(request, pk):
         )
 
     token = auth_header.split(" ")[1]
-    if token != "EC_SECRET_TOKEN_2025":
+    if token != settings.EC_API_TOKEN:
         return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
     try:
         referendum = Referendum.objects.get(pk=pk)
@@ -332,7 +333,7 @@ def ec_referendum_detail(request, pk):
         )
 
     token = auth_header.split(" ")[1]
-    if token != "EC_SECRET_TOKEN_2025":
+    if token != settings.EC_API_TOKEN:
         return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
     try:
         referendum = Referendum.objects.get(pk=pk)

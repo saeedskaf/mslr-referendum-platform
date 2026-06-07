@@ -12,6 +12,7 @@ Election Commission management of referendums, with interactive Swagger/ReDoc do
 python3 -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+cp .env.example .env               # optional locally; edit before deploying
 python manage.py migrate
 python manage.py createsuperuser
 python manage.py runserver
@@ -45,8 +46,11 @@ backend/
 └── requirements.txt
 ```
 
-## Note
+## Configuration
 
-This is a demonstration project with development defaults (`DEBUG = True`, an in-repo
-secret key, and fixed Election Commission credentials). See the
-[Security Notes](../README.md#-security-notes) in the root README before deploying.
+All secrets and environment-specific settings — `DJANGO_SECRET_KEY`, JWT signing key,
+`DEBUG`, `ALLOWED_HOSTS`, CORS, and the Election Commission credentials — are read from
+environment variables (loaded from a git-ignored `.env`). See [`.env.example`](.env.example)
+for the full list. Development defaults keep the project runnable out of the box; override
+them before deploying. See the [Security Notes](../README.md#-security-notes) in the root
+README for the production checklist.

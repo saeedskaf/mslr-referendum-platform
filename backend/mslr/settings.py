@@ -17,17 +17,46 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load environment variables from a .env file if present (see .env.example).
+# Optional: the app still runs with the development defaults below if neither
+# python-dotenv nor a .env file is available.
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv(BASE_DIR / ".env")
+except ImportError:
+    pass
+
+
+def env_bool(name, default):
+    """Read a boolean-ish environment variable ("1", "true", "yes", "on")."""
+    return os.environ.get(name, str(default)).strip().lower() in (
+        "1",
+        "true",
+        "yes",
+        "on",
+    )
+
+
+def env_list(name, default):
+    """Read a comma-separated environment variable into a list of strings."""
+    return [item.strip() for item in os.environ.get(name, default).split(",") if item.strip()]
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-+gxosz#7&-s8o%%84gvj^$9#h8a682%1ga-eahb##37&gf3)t6"
+# The fallback below is a development-only key; set DJANGO_SECRET_KEY in production.
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY",
+    "django-insecure-+gxosz#7&-s8o%%84gvj^$9#h8a682%1ga-eahb##37&gf3)t6",
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env_bool("DJANGO_DEBUG", True)
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "*")
 
 
 
@@ -65,7 +94,16 @@ REST_FRAMEWORK = {
     ],
 }
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = env_bool("DJANGO_CORS_ALLOW_ALL", True)
+
+
+# Election Commission credentials and API token.
+# These ship with development defaults so the demo works out of the box; override
+# them via environment variables (EC_EMAIL / EC_PASSWORD / EC_API_TOKEN) before
+# deploying. See .env.example.
+EC_EMAIL = os.environ.get("EC_EMAIL", "ec@referendum.gov.sr")
+EC_PASSWORD = os.environ.get("EC_PASSWORD", "Shangrilavote&2025@")
+EC_API_TOKEN = os.environ.get("EC_API_TOKEN", "EC_SECRET_TOKEN_2025")
 
 
 SWAGGER_SETTINGS = {
@@ -114,7 +152,7 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
     "ALGORITHM": "HS256",
-    "SIGNING_KEY": "your-secret-key-here-change-in-production",
+    "SIGNING_KEY": os.environ.get("JWT_SIGNING_KEY", SECRET_KEY),
     "VERIFYING_KEY": None,
     "AUDIENCE": None,
     "ISSUER": None,
